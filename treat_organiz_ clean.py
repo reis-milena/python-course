@@ -250,3 +250,86 @@ guarulhos2 = pd.concat([date,guarulhos],axis = 1)
 guarulhos2.head()
 
 del guarulhos, guarulhos2, date
+
+## Checking for missing values (NAN)
+
+#counting NAN by column/variable
+covid_sp_test.isnull().sum()
+
+#checking for NAN in specific column/variable
+covid_sp_test.casos.isnull().sum()
+covid_sp_test['casos'].isnull().sum()
+
+covid_sp.isnull().sum()
+
+#drop missing
+covid_sp_test2 = covid_sp.dropna()
+
+covid_sp_test2.isnull().sum()
+
+#susbtitute missing by median
+covid_sp_test2.obitos_novos.fillna(covid_sp_test2.obitos_novos.median(),
+                                   inplace = True)
+
+#substitute by any other value
+covid_sp_test2.obitos_novos.fillna(10, inplace = True)
+
+del covid_sp_test2
+
+## Python class attributes and changing them
+
+covid_sp_test.dtypes
+
+#casos_pc          object  (at the moment)
+covid_sp_test.casos_pc = covid_sp_test.casos_pc.astype(float) #change to float
+# error ValueError: could not convert string to float: '0,00000000000000e+00'
+# it is necessary to change , to . (as it is numeric)
+
+covid_sp_test.casos_pc = covid_sp_test.casos_pc.apply(lambda x: x.replace(',','.'))
+covid_sp_test.casos_pc = covid_sp_test.casos_pc.astype(float) #change to float
+covid_sp_test.dtypes
+#casos_pc         float64
+
+
+# changing all variables with "," as decimal to "."
+covid_sp_test.casos_mm7d = covid_sp_test.casos_mm7d.apply(lambda x: x.replace(',','.'))
+
+covid_sp_test.obitos_pc = covid_sp_test.obitos_pc.apply(lambda x: x.replace(',','.'))
+
+covid_sp_test.obitos_mm7d = covid_sp_test.obitos_mm7d.apply(lambda x: x.replace(',','.'))
+
+covid_sp_test.letalidade = covid_sp_test.letalidade.apply(lambda x: x.replace(',','.'))
+
+covid_sp_test.casos_mm7d.head()
+covid_sp_test.obitos_pc.head()
+covid_sp_test.obitos_mm7d.head()
+covid_sp_test.letalidade.head()
+
+covid_sp_test.casos_mm7d  = covid_sp_test.casos_mm7d.astype(float)
+covid_sp_test.obitos_pc   = covid_sp_test.obitos_pc.astype(float)
+covid_sp_test.obitos_mm7d = covid_sp_test.obitos_mm7d.astype(float)
+covid_sp_test.letalidade  = covid_sp_test.letalidade.astype(float)
+
+covid_sp_test.dtypes
+
+date = covid_sp.data
+date = pd.DataFrame(date) #
+covid_sp_test = pd.concat([covid_sp_test,date],
+                          axis = 1) #=1 column / =2 row
+
+covid_sp_test.dtypes
+
+#changing date to date format
+
+covid_sp_test.data = covid_sp_test.data.astype('datetime64[D]')
+covid_sp_test.dtypes
+
+### Saving file / exporting file
+
+covid_sp_test.to_csv("covid_sp_20230515.csv",
+                     sep = ";",
+                     encoding = "utf-8",
+                     index =  False) #index =  row.names in R
+
+
+
