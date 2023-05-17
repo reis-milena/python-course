@@ -94,7 +94,7 @@ campinas.obitos_novos.median()
 campinas.obitos_novos.max()
 campinas.obitos_novos.min()
 
-import plotly.express as  px
+import plotly.express as px
 
 #this import is because hist_graph.show() wasn't working
 import plotly.io as pio
@@ -128,3 +128,95 @@ campinas.casos_novos.quantile(q = 0.75) #3rd quartile
 campinas.casos_novos.quantile(q = 1) #4th quartile (= max)
 
 campinas.casos_novos.describe()
+
+# boxplot and outlier
+
+import plotly.express as px
+
+#this import is because hist_graph.show() wasn't working
+import plotly.io as pio
+pio.renderers.default='browser'
+
+boxplot = px.box(campinas, y = "casos_novos")
+boxplot.show()
+
+#calculus of boxplot
+
+outlier_sup = campinas.casos_novos.quantile(q = 0.75) + \
+    1.5*(campinas.casos_novos.quantile(q = 0.75) - campinas.casos_novos.quantile(q = 0.25))
+# \ breaks line
+
+outlier_inf = campinas.casos_novos.quantile(q = 0.25) - \
+    1.5*(campinas.casos_novos.quantile(q = 0.75) - campinas.casos_novos.quantile(q = 0.25))
+    
+outlier_sup
+outlier_inf
+
+no_outlier = campinas.loc[campinas.casos_novos <= outlier_sup]
+
+noout_boxplot = px.box(no_outlier, y = "casos_novos")
+noout_boxplot.show()
+
+del no_outlier, noout_boxplot
+
+boxplot = px.box(guarulhos, y = "casos_novos")
+boxplot.show()
+
+del boxplot, outlier_inf, outlier_sup
+
+# dispersion measures
+
+#variance
+guarulhos.obitos_novos.var()
+campinas.obitos_novos.var()
+
+#standard deviation
+guarulhos.obitos_novos.std()
+campinas.obitos_novos.std()
+
+guarulhos.obitos_novos.describe()
+campinas.obitos_novos.describe()
+
+# normal distribution - normality test
+
+import seaborn as sns
+
+sns.histplot(campinas, x = "casos_novos", bins = 30,
+             color = "darkblue",
+             kde = True, #kde is a tendency line
+             stat = "count")
+
+# qqplot
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+stats.probplot(campinas.casos_novos, dist = "norm", plot = plt)
+plt.title("Normality Study")
+plt.show()
+
+# shapiro-wilk test
+# p>0.05 for normality
+
+stats.shapiro(campinas.casos_novos)
+statistic_shapiro, p_shapiro = stats.shapiro(campinas.casos_novos)
+print("Test (w) statistic =",round(statistic_shapiro,2))
+print("P value =", p_shapiro)
+print("P value =", round(p_shapiro,4))
+
+del statistic_shapiro, p_shapiro
+
+# Kolmogorov-Smirnov Test
+
+#THIS PART IT ISN'T RUNNING
+"""
+import statsmodels
+from statsmodels import lilliefors
+
+statistic_ks, p_ks = statsmodels.stats.diagnostic.lilliefors(campinas.casos_novos,
+                                                             dist = "norm")
+print("Test (ks) statistic =",round(statistic_ks,2))
+print("P value =", p_ks)
+"""
+
+
+

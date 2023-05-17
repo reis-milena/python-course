@@ -281,7 +281,7 @@ del covid_sp_test2
 covid_sp_test.dtypes
 
 #casos_pc          object  (at the moment)
-covid_sp_test.casos_pc = covid_sp_test.casos_pc.astype(float) #change to float
+#covid_sp_test.casos_pc = covid_sp_test.casos_pc.astype(float) #change to float
 # error ValueError: could not convert string to float: '0,00000000000000e+00'
 # it is necessary to change , to . (as it is numeric)
 
