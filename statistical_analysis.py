@@ -113,3 +113,18 @@ cases_hist.update_layout(width = 400, height = 400,
 cases_hist.show()
 
 
+# min, max, quartile (or n quantile)
+
+campinas.casos_novos.min()
+campinas.casos_novos.max()
+
+guarulhos.casos_novos.min()
+guarulhos.casos_novos.max()
+
+campinas.casos_novos.quantile(q = 0.25) #1st quartile
+campinas.casos_novos.quantile(q = 0.5) #2nd quartile
+campinas.casos_novos.median() # 2nd quartile  =  median
+campinas.casos_novos.quantile(q = 0.75) #3rd quartile
+campinas.casos_novos.quantile(q = 1) #4th quartile (= max)
+
+campinas.casos_novos.describe()
