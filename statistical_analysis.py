@@ -5,7 +5,7 @@ Created on Tue May 16 17:57:46 2023
 @author: ville
 """
 
-# Statistical Analysis
+### Statistical Analysis
 
 import numpy as np
 import pandas as pd
@@ -72,7 +72,7 @@ guarulhos.casos_novos.mode()
 campinas.mes.mode()
 guarulhos.mes.mode()
 
-# general information
+## general information
 
 round(campinas.describe(),1)
 round(guarulhos.describe(),1)
@@ -83,7 +83,7 @@ round(campinas.casos_pc.describe(),1)
 round(guarulhos.casos_novos.describe(),1)
 round(guarulhos.casos_pc.describe(),1)
 
-# histogram
+## histogram
 
 #onlye data from 2021
 campinas.data.head()
@@ -112,6 +112,7 @@ cases_hist.update_layout(width = 400, height = 400,
                          title_text = "New Cases at Campinas in 2021")
 cases_hist.show()
 
+del campinas_2021
 
 # min, max, quartile (or n quantile)
 
@@ -129,7 +130,7 @@ campinas.casos_novos.quantile(q = 1) #4th quartile (= max)
 
 campinas.casos_novos.describe()
 
-# boxplot and outlier
+## boxplot and outlier
 
 import plotly.express as px
 
@@ -177,7 +178,7 @@ campinas.obitos_novos.std()
 guarulhos.obitos_novos.describe()
 campinas.obitos_novos.describe()
 
-# normal distribution - normality test
+## normal distribution - normality test
 
 import seaborn as sns
 
@@ -218,5 +219,76 @@ print("Test (ks) statistic =",round(statistic_ks,2))
 print("P value =", p_ks)
 """
 
+## linear correlation
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+plt.scatter(campinas.casos, campinas.obitos)
+plt.title("Covid SP Correlation")
+plt.xlabel("Cases")
+plt.ylabel("Deaths")
+plt.grid(False)
+plt.show()
+
+
+df = campinas[["casos","casos_novos","obitos","obitos_novos"]]
+
+# include correlation
+
+# shapiro-wilk test
+# p>0.05 for normality
+
+statistic_shapiro, p_shapiro = stats.shapiro(campinas.casos)
+print("Test (w) statistic =",round(statistic_shapiro,2))
+print("P value =", p_shapiro)
+
+statistic_shapiro, p_shapiro = stats.shapiro(campinas.obitos)
+print("Test (w) statistic =",round(statistic_shapiro,2))
+print("P value =", p_shapiro)
+
+statistic_shapiro, p_shapiro = stats.shapiro(campinas.casos_novos)
+print("Test (w) statistic =",round(statistic_shapiro,2))
+print("P value =", p_shapiro)
+
+statistic_shapiro, p_shapiro = stats.shapiro(campinas.obitos_novos)
+print("Test (w) statistic =",round(statistic_shapiro,2))
+print("P value =", p_shapiro)
+
+del statistic_shapiro, p_shapiro
+
+#Pearson  - parametric data (normality and Homoscedasticity)
+#Spearman - non parametric data, big sample (>=30)
+#Kendall  - non parametric data, small sample (<30)
+correlacoes = df.corr(method = "spearman") #obs: as seen before, this data doesn't have a normal distribution
+correlacoes
+
+import seaborn as sns
+plt.figure()
+sns.heatmap(correlacoes, annot = True)
+
+sns.pairplot(df) # histogram and scatter plots
+
+## Linear Regression with Statsmodels
+
+import statsmodels.formula.api as smf
+import statsmodels.stats.api   as sms
+
+regression = smf.ols("obitos ~ casos", data = campinas).fit()
+print(regression.summary())
+
+coefs = pd.DataFrame(regression.params)
+coefs.columns = ["Coefficients"]
+print(coefs)
+
+plt.scatter(y = campinas.obitos, x = campinas.casos, color = "lightblue",
+            s = 15, alpha = 0.5)
+x_plot = np.linspace(min(campinas.casos), max(campinas.casos),len(campinas.obitos))
+plt.plot(x_plot, x_plot*regression.params[1]+regression.params[0],
+         color = "darkred")
+plt.title("Linear Regression")
+plt.xlabel("Cases")
+plt.ylabel("Deaths")
+plt.grid(False)
+plt.show()
 
 
