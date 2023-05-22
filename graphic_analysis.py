@@ -93,3 +93,116 @@ sars_edited.CS_ZONA = sars_edited.CS_ZONA.replace({1: "urban",
                                              9: "NAN"})
 sars_edited.CS_ZONA.value_counts().sort_index()
 
+## Bar Graph
+
+# Matplotlib library
+import matplotlib.pyplot as plt
+
+bar_graph = sars_edited.sex.value_counts()
+bar_graph
+
+# vertical bar plot
+plt.bar(bar_graph.index, bar_graph, color = "darkred")
+plt.title("Sex distribution")
+plt.ylabel("Quantity")
+plt.xlabel("Sex")
+plt.show()
+
+#horizontal bar plot
+
+plt.barh(bar_graph.index, bar_graph, color = "darkred")
+plt.title("Sex distribution")
+plt.xlabel("Quantity")
+plt.ylabel("Sex")
+plt.show()
+
+# Seaborn library
+
+import seaborn as sns
+# vertical
+sns.countplot(x = "sex", data = sars_edited); #';" to not show message in Out
+
+#horizontal
+sns.countplot(y = "sex", data = sars_edited); #';" to not show message in Out
+
+fig, ax = plt.subplots(figsize = (8,6))
+sns.countplot(x = "race", data = sars_edited)
+ax.set_title("Race Distribution", fontdict = {"fontsize": 20})
+ax.set_xlabel("Race", fontdict = {"fontsize": 15})
+ax.set_ylabel("Quantity", fontdict = {"fontsize": 15});
+
+# Plotly library
+
+import plotly.express as px
+#this import is because .show() wasn't working
+import plotly.io as pio
+pio.renderers.default='browser'
+
+#in plotly it need to be in dataframe type
+bar_graph2 = bar_graph.rename_axis('sex').reset_index(name='counts')
+bar_graph2
+
+bar_plotly = px.bar(bar_graph2, x = "sex", y = "counts" ,
+                    title = "Sex distribution" )
+bar_plotly.show()
+
+del bar_graph, bar_graph2, bar_plotly, fig, ax
+
+## Box Plot
+
+# first creating age variable by years old
+sars_edited.TP_IDADE.value_counts().sort_index()
+sars_edited.age.value_counts().sort_index()
+
+sars_edited.age.describe()
+
+sars_edited.age.mode()
+
+sars_edited.loc[sars_edited["TP_IDADE"] == 1, "age"] = 0
+sars_edited.loc[sars_edited["TP_IDADE"] == 2, "age"] = 0
+
+sars_edited.describe()
+
+# Plotly library
+
+import plotly.express as px
+#this import is because .show() wasn't working
+import plotly.io as pio
+pio.renderers.default='browser'
+
+
+box_plotly = px.box(sars_edited, y  ="age")
+box_plotly.show()
+
+sars_edited_no_outliers = sars_edited.loc[sars_edited.age < 118]
+
+box_plotly = px.box(sars_edited_no_outliers, y  ="age")
+box_plotly.show()
+
+box_plotly = px.box(sars_edited_no_outliers, y  ="age", x = "sex")
+box_plotly.show()
+
+box_plotly = px.box(sars_edited_no_outliers, y  ="age", x = "race")
+box_plotly.show()
+
+del box_plotly
+
+# Seaborn library
+
+import seaborn as sns
+
+sns.boxplot(y = "age", data = sars_edited_no_outliers, color = "darkred")
+
+sns.boxplot(y = "age", x = "sex", data = sars_edited_no_outliers)
+
+sns.boxplot(y = "age", x = "CS_ZONA", data = sars_edited_no_outliers)
+
+sns.boxplot(y = "age", x = "CS_ZONA", hue = "sex", data = sars_edited_no_outliers)
+
+# Matplotlib library
+import matplotlib.pyplot as plt
+
+plt.boxplot(sars_edited_no_outliers.age)
+plt.title("Age Box Plot")
+plt.xlabel("Age")
+plt.show()
