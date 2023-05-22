@@ -93,7 +93,7 @@ sars_edited.CS_ZONA = sars_edited.CS_ZONA.replace({1: "urban",
                                              9: "NAN"})
 sars_edited.CS_ZONA.value_counts().sort_index()
 
-## Bar Graph
+## Bar Chart
 
 # Matplotlib library
 import matplotlib.pyplot as plt
@@ -206,3 +206,167 @@ plt.boxplot(sars_edited_no_outliers.age)
 plt.title("Age Box Plot")
 plt.xlabel("Age")
 plt.show()
+
+# Histogram
+# Plotly library
+import plotly.express as px
+#this import is because .show() wasn't working
+import plotly.io as pio
+pio.renderers.default='browser'
+
+hist = px.histogram(sars_edited, x = "age", nbins = 60)
+hist.update_layout(width = 800, height = 500, title_text = "Age distribution")
+hist.show()
+
+# Normality analysis - QQ Plot
+
+sars_edited.age.describe()
+sars_edited.age.mode()
+
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+
+stats.probplot(sars_edited.age, dist = "norm", plot = plt)
+plt.title("Normality Analysis")
+plt.show()
+
+# Normality analysis - Kolmogorov-Smirmov Test
+
+# when p>0.05 it has a normal dist.
+
+#THIS PART IT ISN'T RUNNING
+#"""
+import statsmodels
+from statsmodels import lilliefors
+
+statistic_ks, p_ks = statsmodels.stats.diagnostic.lilliefors(sars_edited.age,
+                                                             dist = "norm")
+print("Test statistic =",round(statistic_ks,2))
+print("P value =", p_ks)
+#"""
+
+# Histogram
+# Seaborn library
+
+import seaborn as sns
+fig, ax = plt.subplots(figsize = (8,6))
+sns.histplot(sars_edited, x = "age", bins = 20, color = "darkred",
+             kde = True, stat = "count");
+ax.set_title("Age distribution")
+
+del fig, ax
+# Matplotlib library
+import matplotlib.pyplot as plt
+
+plt.hist(sars_edited.age, color = "darkred", density=False, bins = 20)
+plt.title("Age distribution")
+plt.xlabel("Age")
+plt.show()
+
+# Scatter Plot
+
+#selecting one city from data
+sars_edited.ID_MN_RESI.head()
+
+sars_catanduva = sars_edited.loc[sars_edited.ID_MN_RESI == "CATANDUVA"]
+sars_catanduva
+
+# Matplotlib library
+import matplotlib.pyplot as plt
+plt.scatter(sars_catanduva.date, sars_catanduva.age)
+plt.title("Linear Correlation")
+plt.xlabel("Date")
+plt.ylabel("Age")
+plt.show()
+
+# Seaborn library
+import seaborn as sns
+fig, ax = plt.subplots(figsize = (8,6))
+sns.scatterplot(sars_catanduva, y = "age", x = "date", color = "darkred");
+ax.set_title("Linear Correlation")
+ax.set_xlabel("Dates")
+ax.set_ylabel("Age")
+
+# Plotly library
+import plotly.express as px
+#this import is because .show() wasn't working
+import plotly.io as pio
+pio.renderers.default='browser'
+
+scatter = px.scatter(sars_catanduva, x = "date", y = "age", color = "sex")
+scatter.update_layout(width = 800, height = 500, title_text = "Linear Correlation")
+scatter.update_xaxes(title = "Date")
+scatter.update_yaxes(title = "Age")
+scatter.show()
+
+del sars_catanduva, scatter
+# Pie chart
+# Plotly library
+sars_edited.sex.value_counts()
+
+piechart = px.pie(sars_edited, "sex")
+piechart.show()
+piechart = px.pie(sars_edited, "race")
+piechart.show()
+
+# Matplotlib library
+counts_race = sars_edited.race.value_counts()
+
+plt.figure(figsize = (8,8))
+plt.pie(counts_race, labels = counts_race.index, autopct = "% .2f %%") # % with 2 decimals
+plt.title("Pie Chart")
+plt.show()
+
+del piechart, counts_race
+# Scatter plot with bubbles
+
+#selecting one city from data
+
+sars_tupa = sars_edited.loc[sars_edited.ID_MN_RESI == "TUPA"]
+sars_tupa
+# Plotly library
+bubbles = px.scatter(sars_tupa, x = "date", y = "CS_ZONA", color = "sex", size = "age")
+bubbles.show()
+bubbles = px.scatter(sars_tupa, x = "date", y = "race", color = "sex", size = "age")
+bubbles.show()
+
+# Seaborn library
+fig, ax = plt.subplots(figsize = (8,6))
+sns.scatterplot(sars_tupa, y = "race", x = "date", color = "darkred", size = "age");
+ax.set_title("Bubble Chart")
+ax.set_xlabel("Dates")
+ax.set_ylabel("Age")
+
+del fig, ax, sars_tupa, bubbles
+# Line Chart
+## in sars data there isn't a variable that suits for this type of chart, so it'll be created one
+
+# Matplotlib library
+plt.subplots(figsize = (8,6))
+y = [4,9,6,4,0,3,5.1,6,8.4,12.3]
+x = range(len(y))
+plt.plot(x,y, color = "darkred", marker = "o")
+plt.title("Line Chart")
+plt.show()
+
+# Plotly library
+
+type(y)
+type(x)
+x = list(x)
+type(x)
+print(x)
+
+df = pd.DataFrame(x, columns = ["x"])
+df = pd.concat([df,pd.DataFrame(y, columns = ["y"])], axis = 1)
+df
+
+line_chart = px.line(df, "x", "y")
+line_chart.show()
+
+# Seaborn library
+fig, ax = plt.subplots(figsize = (8,6))
+sns.lineplot(x = x, y = y)
+ax.set_title("Line Chart")
+ax.set_xlabel("X")
+ax.set_ylabel("Y");
