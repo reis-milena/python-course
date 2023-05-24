@@ -123,6 +123,7 @@ plt.stackplot(covid_brazil.date, [covid_brazil.cumulative_cases, covid_brazil.cu
 plt.legend(loc = "upper left")
 plt.title("Cases and Deaths from Covid-19 Evolution in Brazil");
 
+del scatter
 #linear correlation
 
 cor = covid_brazil.corr(method = "spearman")#spearman cause it hasn't a normal distrib.
@@ -130,3 +131,146 @@ cor
 
 plt.figure()
 sns.heatmap(cor, annot = True)
+
+del cor
+
+# Machine Learning
+covid_brazil.shape
+
+# Linear regression
+scatter = px.scatter(covid_brazil, x = "new_cases", y = "new_deaths")
+scatter.update_layout(width = 800, height = 500, title_text = "Deaths VS Cases")
+scatter.update_xaxes(title = "New cases")
+scatter.update_yaxes(title = "New Deaths")
+scatter.show()
+
+del scatter
+
+x = covid_brazil.iloc[:,4].values #4 is new cases
+y = covid_brazil.iloc[:,6].values #6 is new deaths
+
+x
+y
+
+#setting X into column-matrix
+x = x.reshape(-1,1)
+x
+
+#separate data into test-data and training-data
+from sklearn.model_selection import train_test_split
+x_training , x_test, y_training, y_test = train_test_split(x ,y,
+                                                           test_size = 0.25,
+                                                           random_state = 2) #seed
+x_training
+x_test
+
+x_training.size
+x_test.size
+y_training.size
+y_test.size
+
+# Creating model
+from sklearn.linear_model import LinearRegression
+reg = LinearRegression()
+reg.fit(x_training,y_training)
+score = reg.score(x_training,y_training)
+score #R-squared
+
+#Chart with training data
+plt.scatter(x_training,y_training)
+plt.plot(x_training,reg.predict(x_training),
+         color = "darkred")
+
+predict = reg.predict(x_test)
+
+#Chart with test data
+plt.scatter(x_test,y_test)
+plt.plot(x_test,reg.predict(x_test),
+         color = "pink");
+
+predict2 = reg.predict(np.array(80000).reshape(1, -1))
+predict2
+# Out[31]: array([1951.4593068]) for 80000 cases 1951 deaths will fit
+#simulation of 80000 new cases will result in 1951 new deaths
+
+reg.intercept_
+reg.coef_
+
+# Performance metrics 
+reg.score(x_test,y_test) #R-squared
+
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+
+print("Mean absolute error (mae): ", mean_absolute_error(y_test, predict))
+print("Mean squared error (mse): ", mean_squared_error(y_test, predict))
+print("Root mean squared error (rmse): ", np.sqrt( mean_squared_error(y_test, predict)))
+#smaller values are better
+
+del reg, predict, predict2, x, y, x_test, x_training, y_test, y_training, score
+
+# Polynomial regression
+
+x = covid_brazil.iloc[:,0].values #0 is date
+y = covid_brazil.iloc[:,5].values #6 is cumulative cases
+
+x
+#setting dates to numeric sequence (1,2,3...) and as column-matrix
+x = np.arange(1,len(x)+1).reshape(-1,1)
+x
+
+#separate data into test-data and training-data
+x_training , x_test, y_training, y_test = train_test_split(x ,y,
+                                                           test_size = 0.25,
+                                                           shuffle = True,
+                                                           random_state = 2) #seed
+x_training.size
+x_test.size
+
+# Creating model
+from sklearn.preprocessing import PolynomialFeatures
+# from sklearn.linear_model import LinearRegression
+
+poly = PolynomialFeatures(degree = 2)
+x_training_poly = poly.fit_transform(x_training)
+x_test_poly     = poly.fit_transform(x_test)
+
+reg = LinearRegression()
+reg.fit(x_training_poly,y_training)
+score = reg.score(x_training_poly,y_training)
+score
+
+predict = reg.predict(x_test_poly)
+predict.size
+
+#sequence for forecasting
+forecast = np.arange(len(x)+20 ).reshape(-1, 1) # 20 days of forecasting
+forecast.shape
+
+x_training_total = poly.transform(forecast)
+x_training_total.shape
+x_training_total 
+
+total_predict = reg.predict(x_training_total)
+len(total_predict)
+total_predict
+
+plt.subplots(figsize = (10,5))
+plt.plot(forecast[:-20], y, color = "red")
+plt.plot(forecast, total_predict, linestyle = "dashed")
+plt.title("Covid-19 cases in Brazil")
+plt.ylabel("No. of cases")
+plt.legend(["Cumulative cases","Forecast"]);
+
+
+# Performance metrics 
+score #R-squared
+
+poly_test_pred = reg.predict(x_test_poly)
+
+print("Mean absolute error (mae): ", mean_absolute_error(poly_test_pred,y_test)) #order doesn't matter
+print("Mean squared error (mse): ", mean_squared_error(poly_test_pred,y_test))
+print("Root mean squared error (rmse): ", np.sqrt( mean_squared_error(poly_test_pred,y_test)))
+#smaller values are better
+
+del reg, predict, x, y, x_test, x_training, y_test, y_training, score
+del x_training_poly, x_test_poly, x_training_total, poly, poly_test_pred, total_predict
